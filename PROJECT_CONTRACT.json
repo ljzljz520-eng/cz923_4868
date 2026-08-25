@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "metrics": {
+    "production_loc": 2537,
+    "production_files": 24,
+    "production_packages": 10,
+    "test_files": 9,
+    "production_functions": 148,
+    "decision_points": 383
+  },
+  "persistence": {
+    "module": "go.etcd.io/bbolt",
+    "entities": [
+      "PickupOrder",
+      "PrescriptionItem",
+      "CallRecord",
+      "DispenseRecord",
+      "AuditEntry"
+    ],
+    "reopen_test": "TestPersistenceSurvivesReopen"
+  },
+  "workflows": [
+    {
+      "steps": [
+        "校验患者、处方与药品明细",
+        "创建待取药状态的取药单",
+        "在同一事务中保存取药单和审计记录",
+        "从待取药列表查询新取药单"
+      ],
+      "test": "TestWorkflowRegisterAndList"
+    },
+    {
+      "steps": [
+        "读取待取药单并按优先级排序",
+        "检查窗口启用状态与队列容量",
+        "在同一事务中保存叫号记录和状态变更",
+        "从已叫号列表确认窗口分配"
+      ],
+      "test": "TestWorkflowCallAndQueue"
+    },
+    {
+      "steps": [
+        "读取已叫号取药单和完整药品明细",
+        "核对每项药品的确认状态、批号和数量",
+        "在同一事务中保存发药记录和完成状态",
+        "从已完成列表确认发药结果"
+      ],
+      "test": "TestBusinessChain05"
+    }
+  ]
+}
